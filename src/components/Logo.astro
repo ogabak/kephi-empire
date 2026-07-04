@@ -1,0 +1,42 @@
+---
+// Wordmark approximating the brand logo: letterspaced caps with the gold
+// crown seated over the first E of EMPIRE. To use the real logo file
+// instead, drop it in public/images/ and swap this markup for an <img>.
+const { variant = 'purple' } = Astro.props; // 'purple' | 'white'
+---
+
+<a href="/" class={`brand ${variant}`} aria-label="Kephi Empire — home">
+  <span class="w">KEPHI</span>
+  <span class="w empire">
+    <svg class="crown" viewBox="0 0 24 16" aria-hidden="true" fill="currentColor">
+      <path d="M2 12 L4 4 L8.5 8.5 L12 2 L15.5 8.5 L20 4 L22 12 Z" />
+      <rect x="4" y="13.4" width="16" height="1.8" />
+    </svg>
+    <span class="e">E</span>MPIRE
+  </span>
+</a>
+
+<style>
+  .brand {
+    display: inline-flex;
+    gap: 0.55em;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1.15rem;
+    letter-spacing: 0.18em;
+    color: var(--purple-700);
+    line-height: 1;
+    padding-top: 0.55em; /* room for the crown */
+  }
+  .brand.white { color: #fff; }
+  .empire { position: relative; }
+  .e { position: relative; }
+  .crown {
+    position: absolute;
+    top: -0.72em;
+    left: -0.12em;
+    width: 0.95em;
+    height: 0.65em;
+    color: var(--gold-500);
+  }
+</style>

@@ -1,0 +1,133 @@
+# Decap CMS — Kephi Empire (GitHub Pages + GitHub OAuth)
+#
+# base_url must point at your OAuth provider (a free Cloudflare Worker
+# running decap-proxy — see README §3). Staff sign in with "Login with
+# GitHub"; access = write access to the repo, so invite the client as a
+# collaborator.
+
+backend:
+  name: github
+  repo: ogabak/kephi-empire        # owner/repo — NOT the full git URL
+  branch: main
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  # ── Dresses ─────────────────────────────────────────────────────────
+  - name: "dresses"
+    label: "Dresses"
+    label_singular: "Dress"
+    folder: "src/content/dresses"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    format: "frontmatter"
+    summary: "{{name}} — {{collection}} {{if(published, '', '(draft)')}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - label: "Collection"
+        name: "collection"
+        widget: "select"
+        options:
+          - { label: "Bespoke Collection", value: "bespoke" }
+          - { label: "Ready-to-Wear", value: "ready_to_wear" }
+          - { label: "Bridal Wear", value: "bridal" }
+          - { label: "Men's Collection", value: "mens" }
+      - label: "Photo"
+        name: "image"
+        widget: "image"
+        required: false
+        hint: "Please upload photos under 500KB — large images slow the site down."
+      - label: "Feature in Fashion Showcase"
+        name: "showcase"
+        widget: "boolean"
+        default: false
+        hint: "Featured dresses appear in the showcase gallery on the homepage (first 6 by display order)."
+      - label: "Display order"
+        name: "order"
+        widget: "number"
+        value_type: "int"
+        default: 0
+        hint: "Lower numbers show first within a collection."
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: false
+        hint: "Only published dresses appear on the live site."
+
+  # ── Testimonials ────────────────────────────────────────────────────
+  - name: "testimonials"
+    label: "Testimonials"
+    label_singular: "Testimonial"
+    folder: "src/content/testimonials"
+    create: true
+    delete: true
+    format: "frontmatter"
+    summary: "{{client_name}}"
+    fields:
+      - { label: "Quote", name: "quote", widget: "text" }
+      - { label: "Client name", name: "client_name", widget: "string", hint: "e.g. Amaka O." }
+      - { label: "Rating", name: "rating", widget: "number", value_type: "int", min: 1, max: 5, default: 5 }
+      - { label: "Display order", name: "order", widget: "number", value_type: "int", default: 0 }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+
+  # ── Services ────────────────────────────────────────────────────────
+  - name: "services"
+    label: "Services"
+    label_singular: "Service"
+    folder: "src/content/services"
+    create: true
+    delete: true
+    format: "frontmatter"
+    summary: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Short description", name: "description", widget: "string" }
+      - label: "Icon"
+        name: "icon"
+        widget: "select"
+        options:
+          - { label: "Mannequin (Custom Design)", value: "mannequin" }
+          - { label: "Sewing machine (Alterations)", value: "sewing" }
+          - { label: "Ring (Bridal)", value: "ring" }
+          - { label: "Graduation cap (Training)", value: "cap" }
+      - { label: "Display order", name: "order", widget: "number", value_type: "int", default: 0 }
+
+  # ── Site settings (one place for everything else on the page) ──────
+  - name: "settings"
+    label: "Site Settings"
+    files:
+      - name: "site"
+        label: "Homepage & Contact"
+        file: "src/content/settings/site.json"
+        fields:
+          - label: "Hero"
+            name: "hero"
+            widget: "object"
+            fields:
+              - { label: "Eyebrow text", name: "eyebrow", widget: "string" }
+              - { label: "Tagline", name: "tagline", widget: "text" }
+              - { label: "Hero image", name: "image", widget: "image", required: false }
+          - label: "About"
+            name: "about"
+            widget: "object"
+            fields:
+              - { label: "About text", name: "text", widget: "text" }
+              - { label: "About image", name: "image", widget: "image", required: false }
+          - label: "Contact"
+            name: "contact"
+            widget: "object"
+            fields:
+              - { label: "Phone", name: "phone", widget: "string" }
+              - { label: "Email", name: "email", widget: "string" }
+              - { label: "Location", name: "location", widget: "string" }
+          - label: "Social links"
+            name: "socials"
+            widget: "object"
+            fields:
+              - { label: "Instagram URL", name: "instagram", widget: "string", required: false }
+              - { label: "TikTok URL", name: "tiktok", widget: "string", required: false }
+              - { label: "Facebook URL", name: "facebook", widget: "string", required: false }
+              - { label: "Pinterest URL", name: "pinterest", widget: "string", required: false }

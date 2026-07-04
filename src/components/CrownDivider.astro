@@ -1,0 +1,11 @@
+---
+// Gold crown flanked by hairlines — the recurring motif under headings.
+const { align = 'center' } = Astro.props; // 'center' | 'left'
+---
+
+<div class={`crown-divider ${align === 'left' ? 'left' : ''}`} aria-hidden="true">
+  <svg viewBox="0 0 24 16" fill="currentColor">
+    <path d="M2 12 L4 4 L8.5 8.5 L12 2 L15.5 8.5 L20 4 L22 12 Z" />
+    <rect x="4" y="13.4" width="16" height="1.8" />
+  </svg>
+</div>

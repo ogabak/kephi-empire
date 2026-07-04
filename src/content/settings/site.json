@@ -1,0 +1,22 @@
+{
+  "hero": {
+    "eyebrow": "Welcome to",
+    "tagline": "Elevating style. Empowering confidence. Timeless designs for the modern empire.",
+    "image": "/images/placeholders/hero.svg"
+  },
+  "about": {
+    "text": "Kephi Empire is a luxury fashion brand dedicated to creating exquisite designs that celebrate individuality, culture, and elegance. Every piece is crafted with passion, precision, and a commitment to excellence.",
+    "image": "/images/placeholders/atelier.svg"
+  },
+  "contact": {
+    "phone": "+234 800 123 4567",
+    "email": "hello@kephiempire.com",
+    "location": "Lagos, Nigeria"
+  },
+  "socials": {
+    "instagram": "https://instagram.com/kephiempire",
+    "tiktok": "",
+    "facebook": "",
+    "pinterest": ""
+  }
+}

@@ -1,0 +1,341 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import CrownDivider from '../components/CrownDivider.astro';
+import { getCollection } from 'astro:content';
+import { COLLECTIONS } from '../content.config.ts';
+import settings from '../content/settings/site.json';
+
+// Everything below is resolved at BUILD time from files in src/content/.
+const allDresses = await getCollection('dresses', ({ data }) => data.published);
+
+// One card per collection: the lowest-order published dress supplies the photo.
+const collectionCards = COLLECTIONS.map((c) => {
+  const items = allDresses
+    .filter((d) => d.data.collection === c.value)
+    .sort((a, b) => a.data.order - b.data.order);
+  return { ...c, cover: items[0]?.data.image || '/images/placeholders/dress-purple.svg' };
+});
+
+// Showcase gallery: dresses flagged "Feature in Fashion Showcase" in /admin.
+const showcase = allDresses
+  .filter((d) => d.data.showcase && d.data.image)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 6);
+
+const testimonials = (await getCollection('testimonials', ({ data }) => data.published))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const services = (await getCollection('services'))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const icons: Record<string, string> = {
+  mannequin: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><circle cx="24" cy="7" r="3.5"/><path d="M24 12 C17 13.5 14.5 19 15.5 25 L32.5 25 C33.5 19 31 13.5 24 12 Z"/><path d="M17 25 C15 30 16 35 24 36 C32 35 33 30 31 25"/><line x1="24" y1="36" x2="24" y2="42"/><path d="M18 42 H30"/></svg>`,
+  sewing: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 34 H40"/><path d="M12 34 V20 Q12 14 18 14 H30"/><path d="M30 10 V22 Q30 26 26 26"/><circle cx="30" cy="10" r="2"/><line x1="26" y1="26" x2="26" y2="30"/><path d="M8 38 H40"/></svg>`,
+  ring: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><circle cx="24" cy="29" r="11"/><path d="M18 12 L24 5 L30 12 L24 18 Z"/><line x1="21" y1="9" x2="27" y2="9"/></svg>`,
+  cap: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 19 L24 11 L42 19 L24 27 Z"/><path d="M14 23 V32 C14 35 34 35 34 32 V23"/><line x1="42" y1="19" x2="42" y2="30"/><circle cx="42" cy="32" r="1.6"/></svg>`,
+};
+
+const social = [
+  { key: 'instagram', label: 'Instagram', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>` },
+  { key: 'tiktok', label: 'TikTok', svg: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.4 2.1 1.8 3.6 4 3.9v3c-1.6 0-3-.5-4-1.3v6.6c0 3.4-2.6 5.8-5.9 5.8A5.7 5.7 0 0 1 5 15.3c0-3.2 2.5-5.7 5.8-5.7.3 0 .7 0 1 .1v3.2a2.7 2.7 0 0 0-1-.2 2.6 2.6 0 1 0 2.7 2.6V3h3Z"/></svg>` },
+  { key: 'facebook', label: 'Facebook', svg: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V6.8c0-.8.5-1 1-1h2V3h-3c-2.5 0-3.5 1.8-3.5 3.6v1.9H8V12h2.5v9H14v-9h2.4l.4-3.5H14Z"/></svg>` },
+  { key: 'pinterest', label: 'Pinterest', svg: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0-3.3 17.4c-.1-.8-.2-2 0-2.9l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.8 1.5 1.8 1.8 0 3.2-1.9 3.2-4.7 0-2.4-1.7-4.1-4.2-4.1a4.4 4.4 0 0 0-4.6 4.4c0 .9.3 1.8.8 2.3l-.3 1.1c-.1.4-.3.5-.6.3-1.2-.6-2-2.3-2-3.8 0-3.1 2.3-6 6.6-6 3.4 0 6.1 2.5 6.1 5.8 0 3.4-2.2 6.2-5.2 6.2-1 0-2-.5-2.3-1.1l-.6 2.4c-.2.9-.8 2-1.2 2.7A9 9 0 1 0 12 3Z"/></svg>` },
+].filter((s) => (settings.socials as Record<string, string>)[s.key]);
+
+const year = new Date().getFullYear();
+---
+
+<Base title="Kephi Empire — Luxury Fashion, Lagos" description={settings.hero.tagline}>
+  <!-- ═══ Header ═══ -->
+  <header class="site-header" id="home">
+    <div class="wrap">
+      <Logo />
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+      </button>
+      <nav class="nav" id="main-nav">
+        <a href="#home" class="active">Home</a>
+        <a href="#about">About</a>
+        <a href="#collections">Collections</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ═══ Hero ═══ -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow">{settings.hero.eyebrow}</span>
+        <h1 class="display-xl">Kephi<br />Empire</h1>
+        <CrownDivider align="left" />
+        <p class="lead">{settings.hero.tagline}</p>
+        <div class="hero-cta">
+          <a href="/collections" class="btn btn-gold">Shop Collection</a>
+          <a href="#contact" class="btn btn-outline">Book Consultation</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <img src={settings.hero.image} alt="Kephi Empire couture" width="600" height="800" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Our Collections ═══ -->
+  <section class="section" id="collections">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Our Collections</h2>
+        <CrownDivider />
+      </div>
+      <div class="carousel-shell">
+        <button class="carousel-btn prev" aria-label="Previous collections" data-dir="-1">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <div class="coll-track" tabindex="0" aria-label="Collections">
+          {collectionCards.map((c) => (
+            <a class="coll-card" href={`/collections#${c.value}`}>
+              <div class="photo"><img src={c.cover} alt={c.label} loading="lazy" width="300" height="400" /></div>
+              <div class="label">{c.label}</div>
+            </a>
+          ))}
+        </div>
+        <button class="carousel-btn next" aria-label="Next collections" data-dir="1">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+      <div class="center-cta"><a href="/collections" class="btn btn-outline">View All Collections</a></div>
+    </div>
+  </section>
+
+  <!-- ═══ About ═══ -->
+  <section class="section tint" id="about">
+    <div class="wrap">
+      <div class="about-grid">
+        <div class="about-art"><img src={settings.about.image} alt="The Kephi Empire atelier" loading="lazy" width="600" height="450" /></div>
+        <div class="about-body">
+          <span class="eyebrow">About</span>
+          <h2>Kephi Empire</h2>
+          <CrownDivider align="left" />
+          <p>{settings.about.text}</p>
+          <a href="#contact" class="btn btn-gold" style="margin-top:1.2rem;">Read More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Our Services ═══ -->
+  <section class="section" id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Our Services</h2>
+        <CrownDivider />
+      </div>
+      <div class="svc-grid">
+        {services.map((s) => (
+          <div class="svc">
+            <div class="ico" set:html={icons[s.data.icon]} />
+            <h3>{s.data.title}</h3>
+            <p>{s.data.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Testimonials ═══ -->
+  {testimonials.length > 0 && (
+    <section class="quote-band" aria-label="Client testimonials">
+      <button class="quote-arrow prev" aria-label="Previous testimonial" data-dir="-1">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <div class="wrap">
+        <div class="quote-mark" aria-hidden="true">&ldquo;</div>
+        <div class="quote-stage">
+          {testimonials.map((t, i) => (
+            <div class={`quote-slide ${i === 0 ? 'active' : ''}`}>
+              <blockquote>{t.data.quote}</blockquote>
+              <div class="stars" aria-label={`${t.data.rating} out of 5 stars`}>{'★'.repeat(t.data.rating)}</div>
+              <cite>— {t.data.client_name}</cite>
+            </div>
+          ))}
+          <div class="quote-nav" role="tablist" aria-label="Choose testimonial">
+            {testimonials.map((_, i) => (
+              <button class={`quote-dot ${i === 0 ? 'active' : ''}`} data-i={i} aria-label={`Testimonial ${i + 1}`} />
+            ))}
+          </div>
+        </div>
+        <div class="quote-mark close" aria-hidden="true">&rdquo;</div>
+      </div>
+      <button class="quote-arrow next" aria-label="Next testimonial" data-dir="1">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+    </section>
+  )}
+
+  <!-- ═══ Fashion Showcase ═══ -->
+  {showcase.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="section-title">Fashion Showcase</h2>
+          <CrownDivider />
+        </div>
+        <div class="showcase-grid">
+          {showcase.map((d) => (
+            <a href={`/collections#${d.data.collection}`} title={d.data.name}>
+              <img src={d.data.image} alt={d.data.name} loading="lazy" width="300" height="460" />
+            </a>
+          ))}
+        </div>
+        <div class="center-cta"><a href="/collections" class="btn btn-outline">View More</a></div>
+      </div>
+    </section>
+  )}
+
+  <!-- ═══ Contact ═══ -->
+  <section class="section tint" id="contact">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Let&rsquo;s Create Something Beautiful Together</h2>
+        <CrownDivider />
+      </div>
+      <!-- Web3Forms: replace the access_key value with your own free key
+           from https://web3forms.com — submissions arrive by email. -->
+      <form class="contact-form" id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY" />
+        <input type="hidden" name="subject" value="New enquiry from kephiempire.com" />
+        <input type="checkbox" name="botcheck" style="display:none;" tabindex="-1" autocomplete="off" />
+        <input type="text" name="name" placeholder="Your Name" required autocomplete="name" />
+        <input type="email" name="email" placeholder="Your Email" required autocomplete="email" />
+        <input type="tel" name="phone" placeholder="Your Phone" autocomplete="tel" />
+        <input type="text" name="message" placeholder="Your Message" required />
+        <button type="submit" class="btn btn-gold">Send Message&ensp;&rarr;</button>
+      </form>
+      <p class="form-status" id="form-status" role="status"></p>
+    </div>
+  </section>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <Logo variant="white" />
+          <p style="font-size:0.88rem;max-width:26ch;margin-top:1rem;">Elevating style. Empowering confidence.</p>
+          {social.length > 0 && (
+            <div class="socials">
+              {social.map((s) => (
+                <a href={(settings.socials as Record<string, string>)[s.key]} aria-label={s.label} target="_blank" rel="noopener" set:html={s.svg} />
+              ))}
+            </div>
+          )}
+        </div>
+        <div>
+          <h3>Quick Links</h3>
+          <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#about">About Us</a>
+            <a href="/collections">Collections</a>
+            <a href="#services">Services</a>
+            <a href="#contact">Contact</a>
+          </div>
+        </div>
+        <div class="footer-contact">
+          <h3>Contact Us</h3>
+          <p>
+            <a href={`tel:${settings.contact.phone.replace(/\s/g, '')}`}>{settings.contact.phone}</a><br />
+            <a href={`mailto:${settings.contact.email}`}>{settings.contact.email}</a><br />
+            {settings.contact.location}
+          </p>
+        </div>
+        <div>
+          <h3>Newsletter</h3>
+          <p class="newsletter-note">Subscribe to stay updated on our latest collections and offers.</p>
+          <form class="newsletter-form" id="newsletter-form" action="https://api.web3forms.com/submit" method="POST">
+            <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY" />
+            <input type="hidden" name="subject" value="Newsletter signup — kephiempire.com" />
+            <input type="email" name="email" placeholder="Enter your email" required aria-label="Email address" />
+            <button type="submit">Join</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">© {year} Kephi Empire. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // ── Mobile nav ──
+    const toggle = document.querySelector('.nav-toggle');
+    const nav = document.getElementById('main-nav');
+    toggle?.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    nav?.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') { nav.classList.remove('open'); toggle?.setAttribute('aria-expanded', 'false'); }
+    });
+
+    // ── Collections carousel ──
+    const track = document.querySelector('.coll-track');
+    document.querySelectorAll('.carousel-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const card = track?.querySelector('.coll-card');
+        if (!track || !card) return;
+        const step = card.getBoundingClientRect().width + 20;
+        track.scrollBy({ left: step * Number(btn.dataset.dir), behavior: 'smooth' });
+      });
+    });
+
+    // ── Testimonial slider ──
+    const slides = [...document.querySelectorAll('.quote-slide')];
+    const dots = [...document.querySelectorAll('.quote-dot')];
+    let current = 0;
+    let timer;
+    function show(i) {
+      current = (i + slides.length) % slides.length;
+      slides.forEach((s, n) => s.classList.toggle('active', n === current));
+      dots.forEach((d, n) => d.classList.toggle('active', n === current));
+    }
+    function autoplay() {
+      clearInterval(timer);
+      if (slides.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        timer = setInterval(() => show(current + 1), 6000);
+      }
+    }
+    dots.forEach((d) => d.addEventListener('click', () => { show(Number(d.dataset.i)); autoplay(); }));
+    document.querySelectorAll('.quote-arrow').forEach((btn) =>
+      btn.addEventListener('click', () => { show(current + Number(btn.dataset.dir)); autoplay(); })
+    );
+    autoplay();
+
+    // ── Forms (AJAX submit so the visitor never leaves the page) ──
+    async function wireForm(formId, statusEl, okMsg) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const status = statusEl ? document.getElementById(statusEl) : null;
+        const btn = form.querySelector('[type="submit"]');
+        const label = btn?.textContent;
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+        try {
+          const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+          if (!res.ok) throw new Error();
+          form.reset();
+          if (status) status.textContent = okMsg;
+          else if (btn) btn.textContent = 'Joined ✓';
+        } catch {
+          if (status) status.textContent = 'Something went wrong — please email us directly.';
+          else if (btn) btn.textContent = 'Try again';
+        } finally {
+          if (btn) { btn.disabled = false; if (status && label) btn.textContent = label; }
+        }
+      });
+    }
+    wireForm('contact-form', 'form-status', 'Thank you — we\u2019ll be in touch within one business day.');
+    wireForm('newsletter-form', null, '');
+  </script>
+</Base>

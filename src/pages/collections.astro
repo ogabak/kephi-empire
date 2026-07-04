@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import CrownDivider from '../components/CrownDivider.astro';
+import { getCollection } from 'astro:content';
+import { COLLECTIONS } from '../content.config.ts';
+
+const allDresses = await getCollection('dresses', ({ data }) => data.published);
+const grouped = COLLECTIONS.map((c) => ({
+  ...c,
+  items: allDresses
+    .filter((d) => d.data.collection === c.value)
+    .sort((a, b) => a.data.order - b.data.order),
+})).filter((g) => g.items.length > 0);
+---
+
+<Base title="Collections — Kephi Empire">
+  <header class="site-header">
+    <div class="wrap">
+      <Logo />
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/#about">About</a>
+        <a href="/collections" class="active">Collections</a>
+        <a href="/#services">Services</a>
+        <a href="/#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Our Collections</h2>
+        <CrownDivider />
+      </div>
+
+      {grouped.length === 0 ? (
+        <p class="state-msg">New pieces are being added. Check back soon.</p>
+      ) : (
+        grouped.map((group) => (
+          <div class="cat-group" id={group.value}>
+            <span class="eyebrow">{group.label}</span>
+            <div class="cat-grid">
+              {group.items.map((dress) => (
+                <article class="dress-card">
+                  <div class="photo">
+                    {dress.data.image && <img src={dress.data.image} alt={dress.data.name} loading="lazy" width="300" height="400" />}
+                  </div>
+                  <div class="meta">
+                    <h3>{dress.data.name}</h3>
+                    {dress.data.description && <p>{dress.data.description}</p>}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+
+      <div class="center-cta"><a href="/#contact" class="btn btn-gold">Book Consultation</a></div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-bottom">© {new Date().getFullYear()} Kephi Empire. All rights reserved.</div>
+  </footer>
+</Base>
